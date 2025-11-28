@@ -68,6 +68,10 @@ class MockFirestore {
         const filtered = messages.filter(msg => msg.id !== messageId);
         this.setMessages(filtered);
     }
+
+    async deleteAllMessages() {
+        this.setMessages([]);
+    }
 }
 
 export const mockDb = new MockFirestore();

@@ -4,10 +4,10 @@ const AuthContext = createContext(null);
 
 // Mock user database
 const USERS = [
-  { id: 1, username: 'admin', password: 'admin123', role: 'admin', name: 'System Admin' },
-  { id: 2, username: 'user1', password: 'user123', role: 'user', name: 'Alice Johnson' },
-  { id: 3, username: 'user2', password: 'user123', role: 'user', name: 'Bob Smith' },
-  { id: 4, username: 'user3', password: 'user123', role: 'user', name: 'Charlie Davis' },
+  { id: 1, username: 'admin', password: 'admin123', role: 'admin', name: 'Abdur' },
+  { id: 2, username: 'user1', password: 'user123', role: 'user', name: 'Dimple' },
+  { id: 3, username: 'user2', password: 'user123', role: 'user', name: 'Paul' },
+  { id: 4, username: 'user3', password: 'user123', role: 'user', name: 'Ayan' },
 ];
 
 export function AuthProvider({ children }) {

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from './AuthContext';
 import { mockDb } from '../firebase/mockFirestore';
 
@@ -111,6 +111,23 @@ export function MessageProvider({ children }) {
         }
     };
 
+    const deleteAllMessages = useCallback(async () => {
+        console.log('[deleteAllMessages] Called, current user:', currentUser);
+        if (currentUser?.role !== 'admin') {
+            return { success: false, error: 'Unauthorized' };
+        }
+
+        try {
+            console.log('[deleteAllMessages] Calling mockDb.deleteAllMessages()');
+            await mockDb.deleteAllMessages();
+            console.log('[deleteAllMessages] Success - all messages deleted from localStorage');
+            return { success: true };
+        } catch (error) {
+            console.error('[deleteAllMessages] Error:', error);
+            return { success: false, error: 'Failed to delete all messages' };
+        }
+    }, [currentUser]);
+
     const blockUser = (userId) => {
         if (currentUser?.role !== 'admin') {
             return { success: false, error: 'Unauthorized' };
@@ -165,6 +182,7 @@ export function MessageProvider({ children }) {
             blockedUsers,
             sendMessage,
             deleteMessage,
+            deleteAllMessages,
             blockUser,
             unblockUser,
             isUserBlocked,

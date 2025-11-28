@@ -2,15 +2,16 @@ import { useState } from 'react';
 import { useMessages } from '../contexts/MessageContext';
 
 const ALL_USERS = [
-    { id: 2, username: 'user1', name: 'Alice Johnson' },
-    { id: 3, username: 'user2', name: 'Bob Smith' },
-    { id: 4, username: 'user3', name: 'Charlie Davis' },
+    { id: 2, username: 'user1', name: 'Dimple' },
+    { id: 3, username: 'user2', name: 'Paul' },
+    { id: 4, username: 'user3', name: 'Ayan' },
 ];
 
 export default function AdminDashboard() {
     const {
         messages,
         deleteMessage,
+        deleteAllMessages,
         blockedUsers,
         blockUser,
         unblockUser,
@@ -54,6 +55,17 @@ export default function AdminDashboard() {
             const result = await deleteMessage(messageId);
             if (!result.success) {
                 alert('Failed to delete message: ' + result.error);
+            }
+        }
+    };
+
+    const handleClearAll = async () => {
+        if (confirm('⚠️ Are you sure you want to delete ALL messages? This action cannot be undone!')) {
+            const result = await deleteAllMessages();
+            if (result.success) {
+                console.log('✅ All messages deleted successfully');
+            } else {
+                console.error('❌ Failed to delete messages:', result.error);
             }
         }
     };
@@ -224,6 +236,15 @@ export default function AdminDashboard() {
                     <div className="admin-section messages-monitor">
                         <div className="section-header">
                             <h2>💬 Message Monitor</h2>
+                            {messages.length > 0 && (
+                                <button
+                                    onClick={handleClearAll}
+                                    className="clear-all-button"
+                                    title="Delete all messages"
+                                >
+                                    🗑️ Clear All
+                                </button>
+                            )}
                         </div>
 
                         <div className="filters">

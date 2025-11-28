@@ -843,6 +843,31 @@ body {
   font-size: 1.1rem;
 }
 
+.clear-all-button {
+  padding: 0.5rem 1rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid var(--error);
+  border-radius: var(--border-radius);
+  color: var(--error);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.clear-all-button:hover {
+  background: rgba(239, 68, 68, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.clear-all-button:active {
+  transform: translateY(0);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .header {

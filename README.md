@@ -57,10 +57,10 @@ The app will be available at `http://localhost:5173`
 
 | Role | Username | Password | Description |
 |------|----------|----------|-------------|
-| 👨‍💼 Admin | `admin` | `admin123` | Full access - can send messages, delete, block users |
-| 👤 User | `user1` | `user123` | Alice Johnson - Regular user |
-| 👤 User | `user2` | `user123` | Bob Smith - Regular user |
-| 👤 User | `user3` | `user123` | Charlie Davis - Regular user |
+| 👨‍💼 Admin | `admin` | `admin123` | Abdur - Full access, can send messages, delete, block users |
+| 👤 User | `user1` | `user123` | Dimple - Regular user |
+| 👤 User | `user2` | `user123` | Paul - Regular user |
+| 👤 User | `user3` | `user123` | Ayan - Regular user |
 
 ## 🏗️ Architecture
 
