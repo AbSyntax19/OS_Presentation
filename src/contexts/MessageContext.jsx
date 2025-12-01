@@ -50,7 +50,7 @@ export function MessageProvider({ children }) {
         return { isSpam: false };
     };
 
-    const sendMessage = async (text) => {
+    const sendMessage = useCallback(async (text) => {
         if (!currentUser) return { success: false, error: 'Not authenticated' };
 
         // Check if user is blocked (admins can always send)
@@ -95,9 +95,59 @@ export function MessageProvider({ children }) {
             console.error('Error sending message:', error);
             return { success: false, error: 'Failed to send message' };
         }
-    };
+    }, [currentUser, blockedUsers]);
 
-    const deleteMessage = async (messageId) => {
+    const editMessage = useCallback(async (messageId, newText) => {
+        if (!currentUser) {
+            return { success: false, error: 'Not authenticated' };
+        }
+
+        try {
+            // Find the message to verify ownership
+            const message = messages.find(m => m.id === messageId);
+            if (!message) {
+                return { success: false, error: 'Message not found' };
+            }
+
+            // Only allow users to edit their own messages
+            if (message.userId !== currentUser.id) {
+                return { success: false, error: 'You can only edit your own messages' };
+            }
+
+            await mockDb.updateMessage(messageId, newText);
+            return { success: true };
+        } catch (error) {
+            console.error('Error editing message:', error);
+            return { success: false, error: 'Failed to edit message' };
+        }
+    }, [currentUser, messages]);
+
+    const deleteOwnMessage = useCallback(async (messageId) => {
+        if (!currentUser) {
+            return { success: false, error: 'Not authenticated' };
+        }
+
+        try {
+            // Find the message to verify ownership
+            const message = messages.find(m => m.id === messageId);
+            if (!message) {
+                return { success: false, error: 'Message not found' };
+            }
+
+            // Only allow users to delete their own messages
+            if (message.userId !== currentUser.id) {
+                return { success: false, error: 'You can only delete your own messages' };
+            }
+
+            await mockDb.deleteMessage(messageId);
+            return { success: true };
+        } catch (error) {
+            console.error('Error deleting message:', error);
+            return { success: false, error: 'Failed to delete message' };
+        }
+    }, [currentUser, messages]);
+
+    const deleteMessage = useCallback(async (messageId) => {
         if (currentUser?.role !== 'admin') {
             return { success: false, error: 'Unauthorized' };
         }
@@ -109,10 +159,9 @@ export function MessageProvider({ children }) {
             console.error('Error deleting message:', error);
             return { success: false, error: 'Failed to delete message' };
         }
-    };
+    }, [currentUser]);
 
     const deleteAllMessages = useCallback(async () => {
-        console.log('[deleteAllMessages] Called, current user:', currentUser);
         if (currentUser?.role !== 'admin') {
             return { success: false, error: 'Unauthorized' };
         }
@@ -120,7 +169,7 @@ export function MessageProvider({ children }) {
         try {
             console.log('[deleteAllMessages] Calling mockDb.deleteAllMessages()');
             await mockDb.deleteAllMessages();
-            console.log('[deleteAllMessages] Success - all messages deleted from localStorage');
+            console.log('[deleteAllMessages] Success - all messages deleted');
             return { success: true };
         } catch (error) {
             console.error('[deleteAllMessages] Error:', error);
@@ -128,7 +177,7 @@ export function MessageProvider({ children }) {
         }
     }, [currentUser]);
 
-    const blockUser = (userId) => {
+    const blockUser = useCallback((userId) => {
         if (currentUser?.role !== 'admin') {
             return { success: false, error: 'Unauthorized' };
         }
@@ -140,9 +189,9 @@ export function MessageProvider({ children }) {
             setVersion(v => v + 1); // Force re-render
         }
         return { success: true };
-    };
+    }, [currentUser, blockedUsers]);
 
-    const unblockUser = (userId) => {
+    const unblockUser = useCallback((userId) => {
         if (currentUser?.role !== 'admin') {
             return { success: false, error: 'Unauthorized' };
         }
@@ -152,7 +201,7 @@ export function MessageProvider({ children }) {
         setBlockedUsers(updatedBlockedUsers);
         setVersion(v => v + 1); // Force re-render
         return { success: true };
-    };
+    }, [currentUser, blockedUsers]);
 
     const getSpamStats = () => {
         const now = Date.now();
@@ -181,6 +230,8 @@ export function MessageProvider({ children }) {
             messages,
             blockedUsers,
             sendMessage,
+            editMessage,
+            deleteOwnMessage,
             deleteMessage,
             deleteAllMessages,
             blockUser,

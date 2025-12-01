@@ -1,4 +1,3 @@
-
 // Mock real-time database that simulates Firebase behavior
 // Uses localStorage with custom events for real-time synchronization across tabs/windows
 
@@ -61,6 +60,21 @@ class MockFirestore {
         messages.push(newMessage);
         this.setMessages(messages);
         return { id: newMessage.id };
+    }
+
+    async updateMessage(messageId, updatedText) {
+        const messages = this.getMessages();
+        const updatedMessages = messages.map(msg => {
+            if (msg.id === messageId) {
+                return {
+                    ...msg,
+                    text: updatedText,
+                    editedAt: new Date().toISOString()
+                };
+            }
+            return msg;
+        });
+        this.setMessages(updatedMessages);
     }
 
     async deleteMessage(messageId) {
