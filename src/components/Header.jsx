@@ -7,7 +7,7 @@ export default function Header() {
         <header className="header">
             <div className="header-content">
                 <div className="header-left">
-                    <h1 className="header-title">💬 Message Platform</h1>
+                    <h1 className="header-title">WhatsUPPP 💬</h1>
                 </div>
 
                 <div className="header-right">

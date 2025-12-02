@@ -4,7 +4,7 @@ import { useMessages } from '../contexts/MessageContext';
 
 export default function UserDashboard() {
     const { currentUser } = useAuth();
-    const { messages, sendMessage, editMessage, deleteOwnMessage, isUserBlocked, loading } = useMessages();
+    const { messages, sendMessage, editMessage, deleteOwnMessage, deleteMessage, isUserBlocked, loading } = useMessages();
     const [messageText, setMessageText] = useState('');
     const [error, setError] = useState('');
     const [editingMessageId, setEditingMessageId] = useState(null);
@@ -38,8 +38,8 @@ export default function UserDashboard() {
     };
 
     const handleMessageClick = (msg) => {
-        // Only show menu for own messages
-        if (msg.userId === currentUser?.id) {
+        // Show menu for own messages OR if user is admin
+        if (msg.userId === currentUser?.id || currentUser?.role === 'admin') {
             setActiveMenuId(activeMenuId === msg.id ? null : msg.id);
         }
     };
@@ -73,7 +73,11 @@ export default function UserDashboard() {
     };
 
     const handleDeleteConfirm = async () => {
-        await deleteOwnMessage(deleteConfirmId);
+        if (currentUser?.role === 'admin') {
+            await deleteMessage(deleteConfirmId);
+        } else {
+            await deleteOwnMessage(deleteConfirmId);
+        }
         setDeleteConfirmId(null);
     };
 
@@ -132,7 +136,7 @@ export default function UserDashboard() {
             {/* Chat Header */}
             <div className="whatsapp-header">
                 <div className="chat-info">
-                    <h2 className="chat-name">Group Chat</h2>
+                    <h2 className="chat-name">Code._.Nexus</h2>
                     <span className="participant-count">{messages.length} messages</span>
                 </div>
             </div>
@@ -181,7 +185,7 @@ export default function UserDashboard() {
                                         </div>
                                     ) : (
                                         <div
-                                            className={`chat-bubble ${msg.userId === currentUser?.id ? 'clickable' : ''}`}
+                                            className={`chat-bubble ${msg.userId === currentUser?.id || currentUser?.role === 'admin' ? 'clickable' : ''}`}
                                             onClick={() => handleMessageClick(msg)}
                                         >
                                             {msg.userId !== currentUser?.id && (
@@ -200,17 +204,19 @@ export default function UserDashboard() {
                                             </div>
 
                                             {/* Action Menu - Shows on click */}
-                                            {activeMenuId === msg.id && msg.userId === currentUser?.id && (
+                                            {activeMenuId === msg.id && (
                                                 <div className="message-action-menu">
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleEditStart(msg);
-                                                        }}
-                                                        className="action-menu-btn"
-                                                    >
-                                                        ✏️ Edit
-                                                    </button>
+                                                    {msg.userId === currentUser?.id && (
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleEditStart(msg);
+                                                            }}
+                                                            className="action-menu-btn"
+                                                        >
+                                                            ✏️ Edit
+                                                        </button>
+                                                    )}
                                                     <button
                                                         onClick={(e) => {
                                                             e.stopPropagation();

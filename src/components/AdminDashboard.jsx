@@ -25,36 +25,50 @@ export default function AdminDashboard() {
     const [activeTab, setActiveTab] = useState('chat'); // 'chat' or 'controls'
     const [filter, setFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
+    const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+    const [showClearAllConfirm, setShowClearAllConfirm] = useState(false);
 
     const spamStats = getSpamStats();
 
     const handleDelete = async (messageId) => {
-        if (confirm('Are you sure you want to delete this message?')) {
-            const result = await deleteMessage(messageId);
-            if (!result.success) {
-                alert('Failed to delete message: ' + result.error);
-            }
-        }
+        setDeleteConfirmId(messageId);
     };
 
-    const handleClearAll = async () => {
-        if (confirm('⚠️ Are you sure you want to delete ALL messages? This action cannot be undone!')) {
-            const result = await deleteAllMessages();
-            if (result.success) {
-                console.log('✅ All messages deleted successfully');
-            } else {
-                console.error('❌ Failed to delete messages:', result.error);
-            }
+    const confirmDelete = async (messageId) => {
+        const result = await deleteMessage(messageId);
+        if (!result.success) {
+            alert('Failed to delete message: ' + result.error);
         }
+        setDeleteConfirmId(null);
+    };
+
+    const cancelDelete = () => {
+        setDeleteConfirmId(null);
+    };
+
+    const handleClearAll = () => {
+        setShowClearAllConfirm(true);
+    };
+
+    const confirmClearAll = async () => {
+        const result = await deleteAllMessages();
+        if (result.success) {
+            // Success
+        } else {
+            console.error('❌ Failed to delete messages:', result.error);
+        }
+        setShowClearAllConfirm(false);
+    };
+
+    const cancelClearAll = () => {
+        setShowClearAllConfirm(false);
     };
 
     const handleToggleBlock = (userId) => {
         if (blockedUsers.includes(userId)) {
             unblockUser(userId);
         } else {
-            if (confirm('Are you sure you want to block this user?')) {
-                blockUser(userId);
-            }
+            blockUser(userId);
         }
     };
 
@@ -129,7 +143,7 @@ export default function AdminDashboard() {
 
             {/* Tab Content */}
             {activeTab === 'chat' ? (
-                // Show WhatsApp-style chat interface
+                // Show WhatsUPP-style chat interface
                 <UserDashboard />
             ) : (
                 // Show Admin Controls
@@ -222,6 +236,25 @@ export default function AdminDashboard() {
                                 )}
                             </div>
 
+                            {/* Clear All Confirmation */}
+                            {showClearAllConfirm && (
+                                <div className="admin-confirm-overlay">
+                                    <div className="admin-confirm-dialog">
+                                        <h3>⚠️ Clear All Messages</h3>
+                                        <p>Are you sure you want to delete ALL {messages.length} messages?</p>
+                                        <p className="warning-text">This action cannot be undone!</p>
+                                        <div className="admin-confirm-actions">
+                                            <button onClick={confirmClearAll} className="confirm-btn danger">
+                                                Yes, Delete All
+                                            </button>
+                                            <button onClick={cancelClearAll} className="cancel-btn">
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="filters">
                                 <div className="search-box">
                                     <input
@@ -267,14 +300,35 @@ export default function AdminDashboard() {
                                                 </span>
                                             </div>
                                             <div className="message-text">{msg.text}</div>
-                                            <div className="message-actions">
-                                                <button
-                                                    onClick={() => handleDelete(msg.id)}
-                                                    className="delete-button"
-                                                >
-                                                    🗑️ Delete
-                                                </button>
-                                            </div>
+
+                                            {deleteConfirmId === msg.id ? (
+                                                <div className="admin-message-confirm">
+                                                    <p>Delete this message?</p>
+                                                    <div className="admin-message-confirm-actions">
+                                                        <button
+                                                            onClick={() => confirmDelete(msg.id)}
+                                                            className="confirm-btn danger"
+                                                        >
+                                                            Delete
+                                                        </button>
+                                                        <button
+                                                            onClick={cancelDelete}
+                                                            className="cancel-btn"
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="message-actions">
+                                                    <button
+                                                        onClick={() => handleDelete(msg.id)}
+                                                        className="delete-button"
+                                                    >
+                                                        🗑️ Delete
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                     ))
                                 )}

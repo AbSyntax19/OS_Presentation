@@ -167,9 +167,7 @@ export function MessageProvider({ children }) {
         }
 
         try {
-            console.log('[deleteAllMessages] Calling mockDb.deleteAllMessages()');
             await mockDb.deleteAllMessages();
-            console.log('[deleteAllMessages] Success - all messages deleted');
             return { success: true };
         } catch (error) {
             console.error('[deleteAllMessages] Error:', error);
